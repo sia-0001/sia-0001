@@ -877,7 +877,7 @@ async function setContext(app, context) {
   // If context not defined, create it
   if (!app.context) {
     app.context = {
-      isStatic: true,
+      isStatic: false,
       isDev: false,
       isHMR: false,
       app,
@@ -887,9 +887,13 @@ async function setContext(app, context) {
       env: {}
     }; // Only set once
 
-    if (false) {}
+    if ( true && context.req) {
+      app.context.req = context.req;
+    }
 
-    if (false) {}
+    if ( true && context.res) {
+      app.context.res = context.res;
+    }
 
     if (context.ssrContext) {
       app.context.ssrContext = context.ssrContext;
@@ -2142,16 +2146,6 @@ const layouts = {
 
   async mounted() {
     this.$loading = this.$refs.loading;
-
-    if (this.isPreview) {
-      if (this.$store && this.$store._actions.nuxtServerInit) {
-        this.$loading.start();
-        await this.$store.dispatch('nuxtServerInit', this.context);
-      }
-
-      await this.refresh();
-      this.$loading.finish();
-    }
   },
 
   watch: {
@@ -2164,10 +2158,6 @@ const layouts = {
 
     isFetching() {
       return this.nbFetching > 0;
-    },
-
-    isPreview() {
-      return Boolean(this.$options.previewData);
     }
 
   },
@@ -2260,57 +2250,6 @@ const layouts = {
       }
 
       return Promise.resolve(layouts['_' + layout]);
-    },
-
-    getRouterBase() {
-      return (this.$router.options.base || '').replace(/\/+$/, '');
-    },
-
-    getRoutePath(route = '/') {
-      const base = this.getRouterBase();
-
-      if (base && route.startsWith(base)) {
-        route = route.substr(base.length);
-      }
-
-      return (route.replace(/\/+$/, '') || '/').split('?')[0].split('#')[0];
-    },
-
-    getStaticAssetsPath(route = '/') {
-      const {
-        staticAssetsBase
-      } = window.__NUXT__;
-      return urlJoin(staticAssetsBase, this.getRoutePath(route));
-    },
-
-    async fetchStaticManifest() {
-      return window.__NUXT_IMPORT__('manifest.js', encodeURI(urlJoin(this.getStaticAssetsPath(), 'manifest.js')));
-    },
-
-    setPagePayload(payload) {
-      this._pagePayload = payload;
-      this._payloadFetchIndex = 0;
-    },
-
-    async fetchPayload(route) {
-      const manifest = await this.fetchStaticManifest();
-      const path = this.getRoutePath(route);
-
-      if (!manifest.routes.includes(path)) {
-        this.setPagePayload(false);
-        throw new Error(`Route ${path} is not pre-rendered`);
-      }
-
-      const src = urlJoin(this.getStaticAssetsPath(route), 'payload.js');
-
-      try {
-        const payload = await window.__NUXT_IMPORT__(decodeURI(route), encodeURI(src));
-        this.setPagePayload(payload);
-        return payload;
-      } catch (err) {
-        this.setPagePayload(false);
-        throw err;
-      }
     }
 
   },
@@ -2971,9 +2910,7 @@ const createNext = ssrContext => opts => {
     routePath: ''
   }; // Remove query from url is static target
 
-  if ( true && ssrContext.url) {
-    ssrContext.url = ssrContext.url.split('?')[0];
-  } // Public runtime config
+  if (false) {} // Public runtime config
 
 
   ssrContext.nuxt.config = ssrContext.runtimeConfig.public; // Create the app definition and the instance (created for each request)

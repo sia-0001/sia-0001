@@ -55,6 +55,7 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    publicPath: '/sia-0001/',
   }, 
-  target: 'static'
+  buildDir: 'docs',
 }
